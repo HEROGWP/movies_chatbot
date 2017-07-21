@@ -53,6 +53,8 @@ Bot.on :message do |message|
 
       message.reply(text: '你想看哪部電影？', quick_replies: QuickReply.new(movie_names))
       # message.reply(text: movie_names.to_s)
+    elsif text == 'Hi'
+      message.reply(text: 'Hello')
     else
       doc = Nokogiri::HTML(open(URI.encode("https://tw.movies.yahoo.com/moviesearch_result.html?keyword=#{text[0..100]}&type=movie&page=1")))
       m = doc.css('a').select{|m| m.text == '時刻表' }
