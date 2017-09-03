@@ -39,6 +39,7 @@ include Facebook::Messenger
 
 Bot.on :message do |message|
   # TODO: Make bot replay something
+  client = Client.find_or_create_by(uid: message.sender['id'])
   message.typing_on
   text = message.text
   begin
