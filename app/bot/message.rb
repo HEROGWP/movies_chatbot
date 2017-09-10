@@ -43,7 +43,7 @@ Bot.on :message do |message|
   message.typing_on
   text = message.text
   begin
-    if text.downcase == 'help'
+    if text.downcase == 'help' || text.downcase == '幫助'
       actions = ['推薦電影', '重設看電影的地區']
       message.reply(text: '你需要什麼幫忙嗎？', quick_replies: QuickReply.new(actions))
     elsif client.city.nil? || text.downcase == 'cities' || text.downcase == '重設看電影的地區'
@@ -51,8 +51,9 @@ Bot.on :message do |message|
         city = City.find_by(name: text)
         client.city = city
         client.save
-        message.reply(text: '輸入cities可以重設你所在的地區~ ^^')
-        message.reply(text: '你想看哪部電影？')
+
+        movie_names = Movie.recommend
+        message.reply(text: '你想看哪部電影？(如果選項沒有可以直接輸入)', quick_replies: QuickReply.new(movie_names))
       else
         client.update(city_id: nil)
 
@@ -67,7 +68,7 @@ Bot.on :message do |message|
 
         message.reply(text: reply_text, quick_replies: QuickReply.new(City.order(:priority).limit(11).pluck(:name)))
       end
-    elsif text.downcase == 'movies' || text.downcase == '推薦電影'
+    elsif text.downcase == 'movies' || text.downcase == '推薦電影' || text.downcase == '不知道'
       movie_names = Movie.recommend
 
       message.reply(text: '你想看哪部電影？', quick_replies: QuickReply.new(movie_names))
