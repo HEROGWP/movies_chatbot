@@ -56,13 +56,13 @@ Bot.on :message do |message|
         reply_text = <<~TEXT
           你想在哪個地區看電影？
 
-          以下是目前支援的縣市：
+          以下是目前支援的地區(如果選項沒有可以直接輸入):
           #{City.pluck(:name).join(', ')}
         TEXT
 
-        message.reply(text: reply_text)
+        # message.reply(text: reply_text)
 
-        # message.reply(text: '你想在哪個地區看電影？', quick_replies: QuickReply.new(City.pluck(:name).limit(11)))
+        message.reply(text: reply_text, quick_replies: QuickReply.new(City.order(:priority).limit(11).pluck(:name)))
       end
     elsif text.downcase == 'movies'
       movie_names = Movie.recommend
