@@ -43,13 +43,34 @@ Bot.on :message do |message|
   message.typing_on
   text = message.text
   begin
-    if text.downcase == 'movies'
+    if client.city.nil? || text.downcase == 'cities'
+      if City.pluck(:name).include?(text)
+        city = City.find_by(name: text)
+        client.city = city
+        client.save
+        message.reply(text: '輸入cities可以重設你所在的地區~ ^^')
+        message.reply(text: '你想看哪部電影？')
+      else
+        client.update(city_id: nil)
+
+        reply_text = <<~TEXT
+          你想在哪個地區看電影？
+
+          以下是目前支援的縣市：
+          #{City.pluck(:name).join(', ')}
+        TEXT
+
+        message.reply(text: reply_text)
+
+        # message.reply(text: '你想在哪個地區看電影？', quick_replies: QuickReply.new(City.pluck(:name).limit(11)))
+      end
+    elsif text.downcase == 'movies'
       movie_names = Movie.recommend
 
       message.reply(text: '你想看哪部電影？', quick_replies: QuickReply.new(movie_names))
       # message.reply(text: movie_names.to_s)
     else
-      movie = Movie.search(text)
+      movie = Movie.search(text, client)
       message.reply(text: movie[:name]) if movie[:name]
 
       movie[:data].each do |where|
@@ -57,6 +78,8 @@ Bot.on :message do |message|
       end
     end
   rescue => e
+    Rails.logger.error e.message
+    Rails.logger.error e.backtrace.join("\n")
     message.reply(text: '查無此電影!!!')
   end
 end

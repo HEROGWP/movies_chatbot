@@ -10,7 +10,7 @@ class Movie
     movie_names
   end
 
-  def self.search(keyword)
+  def self.search(keyword, client)
     doc = Nokogiri::HTML(open(URI.encode("https://tw.movies.yahoo.com/moviesearch_result.html?keyword=#{keyword[0..100]}&type=movie&page=1")))
     m = doc.css('a').select{|m| m.text == '時刻表' }
     m = m.select{|m| m.attributes['href'] != nil }
@@ -20,17 +20,24 @@ class Movie
       url = m.first.attributes['href'].value
       doc = Nokogiri::HTML(open(url))
 
-      times = doc.css('.area_time._c').first(20).compact.map do |where|
-        times = where.css('.time .select').map do |time|
-          time.text
-        end.join(', ')
+      doc.css('.area_timebox').each do |box|
+        city_selector = box.css('.area_title')
+        next if city_selector.text != client.city.name
 
-        data << where.css('.adds').first.css('a').text + "(#{where.css('.tapR').text})" + "\n" + times if times.present?
+        box.css('.area_time._c').first(20).compact.map do |where|
+          times = where.css('.time .select').map do |time|
+            time.text
+          end.join(', ')
 
-        times == '' ? nil : times
+          data << where.css('.adds').first.css('a').text + "(#{where.css('.tapR').text})" + "\n" + times if times.present?
+
+          times == '' ? nil : times
+        end
+
+        break
       end
 
-      data << "目前沒有可觀看的時間!!!" if times.compact.blank?
+      data << "目前沒有可觀看的時間!!!" if data.compact.blank?
     else
       data << "查無此電影!!!"
     end
