@@ -43,7 +43,9 @@ Bot.on :message do |message|
   message.typing_on
   text = message.text
   begin
-    if text.downcase == 'help' || text.downcase == '幫助'
+    if text.downcase == 'hi'
+      message.reply(text: 'Hello')
+    elsif text.downcase == 'help' || text.downcase == '幫助'
       actions = ['推薦電影', '重設看電影的地區']
       message.reply(text: '你需要什麼幫忙嗎？', quick_replies: QuickReply.new(actions))
     elsif client.city.nil? || text.downcase == 'cities' || text.downcase == '重設看電影的地區'
