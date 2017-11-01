@@ -1,7 +1,7 @@
 class Movie
   def self.recommend
     movie_names = []
-    doc = Nokogiri::HTML(open("https://tw.movies.yahoo.com/movie_intheaters.html?page=#{rand(1..8)}"))
+    doc = Nokogiri::HTML(open("https://tw.movies.yahoo.com/movie_intheaters.html?page=#{rand(1..3)}"))
     movies = doc.css('.release_movie_name')
     movies.each do |movie|
       movie_names << movie.css('a').first.text.split(' ').first
@@ -24,8 +24,8 @@ class Movie
         city_selector = box.css('.area_title')
         next if city_selector.text != client.city.name
 
-        box.css('.area_time._c').first(20).compact.map do |where|
-          times = where.css('.time .select').map do |time|
+        box.css('.area_time._c').first(5).compact.map do |where|
+          times = where.css('.time .select').first(5).compact.map do |time|
             time.text
           end.join(', ')
 
