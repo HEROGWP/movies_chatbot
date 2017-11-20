@@ -76,11 +76,16 @@ Bot.on :message do |message|
       message.reply(text: '你想看哪部電影？', quick_replies: QuickReply.new(movie_names))
       # message.reply(text: movie_names.to_s)
     else
-      movie = Movie.search(text, client)
-      message.reply(text: movie[:name]) if movie[:name]
-
-      movie[:data].each do |where|
-        message.reply(text: where)
+      movie = Movie.where('name like ?', "%#{text}%").order(id: :desc).first
+      if movie
+        message.reply(text: movie.name)
+        if movie.times[client.city.name]&.present?
+          message.reply(text: movie.times[client.city.name].join("\n"))
+        else
+          message.reply(text: "目前沒有可觀看的時間!!!")
+        end
+      else
+        message.reply(text: '查無此電影!!!')
       end
     end
   rescue => e

@@ -1,4 +1,6 @@
-class Movie
+class Movie < ApplicationRecord
+  store :times
+
   def self.recommend
     movie_names = []
     doc = Nokogiri::HTML(open("https://tw.movies.yahoo.com/movie_intheaters.html?page=#{rand(1..3)}"))
