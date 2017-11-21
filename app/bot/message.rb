@@ -79,8 +79,11 @@ Bot.on :message do |message|
       movie = Movie.where('name like ?', "%#{text}%").order(id: :desc).first
       if movie
         message.reply(text: movie.name)
-        if movie.times[client.city.name]&.present?
-          message.reply(text: movie.times[client.city.name].join("\n"))
+        timestables = movie.times[client.city.name]
+        if timestables&.present?
+          while timestables.present?
+            message.reply(text: timestables.shift(3).join("\n"))
+          end
         else
           message.reply(text: "目前沒有可觀看的時間!!!")
         end
