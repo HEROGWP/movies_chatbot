@@ -45,36 +45,22 @@ Bot.on :message do |message|
   begin
     if text.downcase == 'hi'
       message.reply(text: 'Hello')
-    elsif text.downcase == 'help' || text.downcase == '幫助'
-      actions = ['推薦電影', '重設看電影的地區']
-      message.reply(text: '你需要什麼幫忙嗎？', quick_replies: QuickReply.new(actions))
-    elsif client.city.nil? || text.downcase == 'cities' || text.downcase == '重設看電影的地區'
-      if City.pluck(:name).include?(text)
-        city = City.find_by(name: text)
-        client.city = city
-        client.save
+    # elsif ['help', '幫助'].include?(text.downcase)
+    #   question = '你需要什麼幫忙嗎？'
+    #   buttons = ['推薦電影', '重設看電影的地區']
+    #   message.reply(attachment: Button.data(question, buttons))
+    # elsif City.pluck(:name).include?(text)
+    #   city = City.find_by(name: text)
+    #   client.city = city
+    #   client.save
 
-        movie_names = Movie.recommend
-        message.reply(text: '你想看哪部電影？(如果選項沒有可以直接輸入)', quick_replies: QuickReply.new(movie_names))
-      else
-        client.update(city_id: nil)
+    #   movie_names = Movie.recommend
+    #   message.reply(text: '你想看哪部電影？(如果選項沒有可以直接輸入)', quick_replies: QuickReply.new(movie_names))
+    # elsif ['movies', '不知道'].include?(text.downcase)
+    #   movie_names = Movie.recommend
 
-        reply_text = <<~TEXT
-          你想在哪個地區看電影？
-
-          以下是目前支援的地區(如果選項沒有可以直接輸入):
-          #{City.pluck(:name).join(', ')}
-        TEXT
-
-        # message.reply(text: reply_text)
-
-        message.reply(text: reply_text, quick_replies: QuickReply.new(City.order(:priority).limit(11).pluck(:name)))
-      end
-    elsif text.downcase == 'movies' || text.downcase == '推薦電影' || text.downcase == '不知道'
-      movie_names = Movie.recommend
-
-      message.reply(text: '你想看哪部電影？', quick_replies: QuickReply.new(movie_names))
-      # message.reply(text: movie_names.to_s)
+    #   message.reply(text: '你想看哪部電影？', quick_replies: QuickReply.new(movie_names))
+    #   # message.reply(text: movie_names.to_s)
     else
       movie = Movie.where('name like ?', "%#{text}%").order(id: :desc).first
       if movie
