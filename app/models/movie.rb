@@ -9,7 +9,7 @@ class Movie < ApplicationRecord
       movie_names << movie.css('a').first.text.split(' ').first
     end
 
-    movie_names
+    { text: '你想看哪部電影？(如果選項沒有可以直接輸入)', quick_replies: QuickReply.new(movie_names) }
   end
 
   def self.search(keyword, client)
@@ -45,5 +45,50 @@ class Movie < ApplicationRecord
     end
 
     { name: movie_name, data: data }
+  end
+
+
+  # def website(title)
+  #   {
+  #     type: 'template',
+  #     payload: {
+  #       template_type: 'button',
+  #       text: name,
+  #       buttons: [{
+  #         type: 'web_url',
+  #         url: url,
+  #         title: title,
+  #         webview_height_ratio: 'full',
+  #         messenger_extensions: true,
+  #         fallback_url: url,
+  #       }],
+  #     }
+  #   }
+  # end
+
+  def website(title)
+    {
+      type: 'template',
+      payload: {
+        template_type: 'generic',
+        elements: [{
+          title: name,
+          image_url: picture_url,
+          subtitle: '簡介',
+          default_action: {
+            type: 'web_url',
+            url: url,
+            messenger_extensions: true,
+            webview_height_ratio: 'full',
+            fallback_url: url,
+          },
+          buttons: [{
+            type: 'web_url',
+            url: url,
+            title: title,
+          }],
+        }]
+      }
+    }
   end
 end

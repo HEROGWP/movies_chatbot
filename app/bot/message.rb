@@ -49,22 +49,23 @@ Bot.on :message do |message|
     #   question = '你需要什麼幫忙嗎？'
     #   buttons = ['推薦電影', '重設看電影的地區']
     #   message.reply(attachment: Button.data(question, buttons))
-    # elsif City.pluck(:name).include?(text)
-    #   city = City.find_by(name: text)
-    #   client.city = city
-    #   client.save
+    elsif City.pluck(:name).include?(text)
+      city = City.find_by(name: text)
+      client.update(city_id: city.id)
 
-    #   movie_names = Movie.recommend
-    #   message.reply(text: '你想看哪部電影？(如果選項沒有可以直接輸入)', quick_replies: QuickReply.new(movie_names))
+      message.reply(Movie.recommend)
     # elsif ['movies', '不知道'].include?(text.downcase)
     #   movie_names = Movie.recommend
 
     #   message.reply(text: '你想看哪部電影？', quick_replies: QuickReply.new(movie_names))
     #   # message.reply(text: movie_names.to_s)
+    elsif client.city.nil?
+      message.reply(City.setting_message)
     else
       movie = Movie.where('name like ?', "%#{text}%").order(id: :desc).first
       if movie
-        message.reply(text: movie.name)
+        message.reply(attachment: movie.website('查看更多'))
+
         timestables = movie.times[client.city.name]
         if timestables&.present?
           while timestables.present?

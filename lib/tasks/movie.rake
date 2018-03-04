@@ -25,6 +25,7 @@ namespace :movie do
         doc = Nokogiri::HTML(open(URI.encode("https://tw.movies.yahoo.com/#{path}.html?page=#{page + 1}")))
         timetables = doc.css('.btn_s_time.gabtn')
         timetables.each do |timetable|
+          url = timetable.attributes['href'].value
           doc = Nokogiri::HTML(open(timetable.attributes['href'].value))
           movie_name = doc.css('.inform_title').children.first.text.split("\n").first
           puts movie_name
@@ -49,8 +50,11 @@ namespace :movie do
             end
           end
 
+          info_url = url.gsub('movietime_result', 'movieinfo_main')
+          doc = Nokogiri::HTML(open(info_url))
+          picture_url = doc.css('.movie_intro_foto img').first.attributes['src'].value
           movie = Movie.find_or_create_by(name: movie_name)
-          movie.update(times: data)
+          movie.update(times: data, url: info_url, picture_url: picture_url)
           PP.pp data
         end
       end

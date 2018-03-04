@@ -12,23 +12,13 @@ Bot.on :postback do |postback|
   if ['GET_STARTED_PAYLOAD'].include?(postback.payload)
     client.update(city_id: nil)
 
-    reply_text = <<~TEXT
-      你想在哪個地區看電影？
-      以下是目前支援的地區(如果選項沒有可以直接輸入):
-      #{City.pluck(:name).join(', ')}
-    TEXT
-
-    postback.reply(text: reply_text, quick_replies: QuickReply.new(City.order(:priority).limit(11).pluck(:name)))
+    postback.reply(City.setting_message)
   elsif City.pluck(:name).include?(postback.payload)
     city = City.find_by(name: postback.payload)
-    client.city = city
-    client.save
+    client.update(city_id: city.id)
 
-    movie_names = Movie.recommend
-    postback.reply(text: '你想看哪部電影？(如果選項沒有可以直接輸入)', quick_replies: QuickReply.new(movie_names))
+    postback.reply(Movie.recommend)
   elsif postback.payload == 'MOVIES'
-    movie_names = Movie.recommend
-
-    postback.reply(text: '你想看哪部電影？', quick_replies: QuickReply.new(movie_names))
+    postback.reply(Movie.recommend)
   end
 end
