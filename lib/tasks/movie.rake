@@ -25,9 +25,13 @@ namespace :movie do
         doc = Nokogiri::HTML(open(URI.encode("https://tw.movies.yahoo.com/#{path}.html?page=#{page + 1}")))
         timetables = doc.css('.btn_s_time.gabtn')
         timetables.each do |timetable|
-          url = timetable.attributes['href'].value
-          doc = Nokogiri::HTML(open(timetable.attributes['href'].value))
-          movie_name = doc.css('.inform_title').children.first.text.split("\n").first
+          timetable_url = timetable.attributes['href'].value
+          yahoo_movie_id = timetable_url.match(/id=(\d+)/i).captures.first
+          url = "https://movies.yahoo.com.tw/ajax/pc/get_schedule_by_movie?movie_id=#{yahoo_movie_id}&date=#{Date.today.strftime("%Y-%m-%d")}&area_id="
+          response = HTTParty.get(url)
+          response_data = response.parsed_response
+          doc = Nokogiri::HTML(response_data['view'])
+          movie_name = doc.css('input').first.attr('data-movie_title')
           puts movie_name
 
           data = {}
@@ -38,7 +42,7 @@ namespace :movie do
 
             data[city_name] = []
             box.css('.area_time._c').map do |theater|
-              times = theater.css('.time._c li.select').map do |time|
+              times = theater.css('label.select').map do |time|
                 time.text
               end.join(', ')
 
@@ -50,7 +54,7 @@ namespace :movie do
             end
           end
 
-          info_url = url.gsub('movietime_result', 'movieinfo_main')
+          info_url = timetable_url.gsub('movietime_result', 'movieinfo_main')
           doc = Nokogiri::HTML(open(info_url))
           picture_url = doc.css('.movie_intro_foto img').first.attributes['src'].value
           movie = Movie.find_or_create_by(name: movie_name)
