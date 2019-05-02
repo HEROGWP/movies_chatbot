@@ -66,7 +66,8 @@ Bot.on :message do |message|
       if movie
         message.reply(attachment: movie.website('查看更多'))
 
-        timestables = movie.times[client.city.name]
+        name = (client.city.name == '台北') ? '台北市' : client.city.name
+        timestables = movie.times[name]
         timestables += movie.times['中壢'] if client.city.name == '桃園' && movie.times['中壢']
 
         if timestables&.present?
