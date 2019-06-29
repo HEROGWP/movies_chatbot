@@ -23,6 +23,6 @@ env :PATH, ENV['PATH'] #要用bundle時必須要加
 
 set :output, 'log/cron.log' #設定log的路徑
 
-every 13.minute do # 1.minute 1.day 1.week 1.month 1.year is also supported
+every 1.hour do # 1.minute 1.day 1.week 1.month 1.year is also supported
   rake 'movie:update_movies'
 end
