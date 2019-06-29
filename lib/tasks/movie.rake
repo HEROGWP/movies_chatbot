@@ -19,7 +19,6 @@ namespace :movie do
 
   task update_movies: :environment do
     pages = ENV['pages'] || 8
-    yahoo_movie_id = ENV['movie_id'] || nil
     paths = %w[movie_thisweek movie_intheaters]
     paths.each do |path|
       pages.to_i.times do |page|
@@ -58,7 +57,6 @@ namespace :movie do
                     movie_id: movie.id,
                     start_time:  start_time
                   )
-                  puts start_time
                 end
               end
             end
