@@ -12,7 +12,7 @@ class Movie < ApplicationRecord
       movie_names << movie.css('a').first.text.split(' ').first
     end
 
-    { text: '你想看哪部電影？(如果選項沒有可以直接輸入)', quick_replies: QuickReply.new(movie_names) }
+    { text: '為您推薦以下電影(如果選項沒有可以直接輸入)', quick_replies: QuickReply.new(movie_names) }
   end
 
   def self.search(keyword, client)
@@ -93,5 +93,13 @@ class Movie < ApplicationRecord
         }]
       }
     }
+  end
+
+  def self.get_dates(movie_name)
+    time_current = Time.current
+
+    dates = (0..3).map{ |index| (time_current + index.days).date_weekday }
+
+    { text: "你想看哪天的#{movie_name}？", quick_replies: QuickReply.new(dates) }
   end
 end
