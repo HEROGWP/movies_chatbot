@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180111172549) do
+ActiveRecord::Schema.define(version: 20190629101648) do
 
   create_table "active_admin_comments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
     t.string "namespace"
@@ -62,6 +62,8 @@ ActiveRecord::Schema.define(version: 20180111172549) do
     t.integer "city_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "movie_id"
+    t.index ["movie_id"], name: "index_clients_on_movie_id"
   end
 
   create_table "movies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
@@ -79,6 +81,18 @@ ActiveRecord::Schema.define(version: 20180111172549) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "description"
+  end
+
+  create_table "time_tables", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
+    t.string "theater_type"
+    t.integer "theater_id"
+    t.integer "movie_id"
+    t.datetime "start_time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["movie_id"], name: "index_time_tables_on_movie_id"
+    t.index ["start_time"], name: "index_time_tables_on_start_time"
+    t.index ["theater_id"], name: "index_time_tables_on_theater_id"
   end
 
 end

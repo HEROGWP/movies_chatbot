@@ -1,4 +1,7 @@
 class Movie < ApplicationRecord
+  has_many :time_tables
+  has_many :clients
+
   store :times
 
   def self.recommend
