@@ -65,9 +65,10 @@ Bot.on :message do |message|
       city_ids = [client.city_id]
       city_ids << 22 if city_ids == [1] # 台北市 台北二輪
       city_ids << 5 if city_ids == [4] # 桃園 中壢
+      movie = client.movie
 
       group_time_tables = TimeTable.joins(:theater)
-                                   .where(movie_id: client.movie.id, theaters: { city_id: city_ids })
+                                   .where(movie_id: movie.id, theaters: { city_id: city_ids })
                                    .where(start_time: time_current..time_current.end_of_day)
                                    .pluck_all(:'theaters.name', :theater_type, :start_time)
                                    .group_by{ |time_table| time_table['name'] }
@@ -83,7 +84,7 @@ Bot.on :message do |message|
 
       message.reply(text: time_current.date_weekday)
       if time_tables.blank?
-        message.reply(text: '目前沒有可觀看的時間!!!')
+        message.reply(text: "#{movie.name}, 沒有可觀看的時間!!!")
         message.reply(Movie.recommend)
         next
       end
