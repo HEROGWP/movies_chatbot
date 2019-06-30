@@ -5,12 +5,8 @@ class Movie < ApplicationRecord
   store :times
 
   def self.recommend
-    movie_names = []
-    doc = Nokogiri::HTML(open("https://tw.movies.yahoo.com/movie_intheaters.html?page=#{rand(1..3)}"))
-    movies = doc.css('.release_movie_name')
-    movies.each do |movie|
-      movie_names << movie.css('a').first.text.split(' ').first
-    end
+    doc = Nokogiri::HTML(open("https://tw.movies.yahoo.com/chart.html"))
+    movie_names = doc.css('.rank_txt').map(&:text).sample(11)
 
     { text: '為您推薦以下電影(如果選項沒有可以直接輸入)', quick_replies: QuickReply.new(movie_names) }
   end
@@ -95,11 +91,11 @@ class Movie < ApplicationRecord
     }
   end
 
-  def self.get_dates(movie_name)
+  def get_dates
     time_current = Time.current
 
     dates = (0..3).map{ |index| (time_current + index.days).date_weekday }
 
-    { text: "你想看哪天的#{movie_name}？", quick_replies: QuickReply.new(dates) }
+    { text: "你想看哪天的#{name}？", quick_replies: QuickReply.new(dates) }
   end
 end

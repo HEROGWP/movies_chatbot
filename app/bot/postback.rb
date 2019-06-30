@@ -18,6 +18,11 @@ Bot.on :postback do |postback|
     client.update(city_id: city.id)
 
     postback.reply(Movie.recommend)
+  elsif postback.payload == 'ONE_THEATER'
+    postback.reply(Theater.regions)
+  elsif postback.payload == 'ALL_THEATER'
+    client.update(region: nil)
+    postback.reply(client.movie.get_dates)
   elsif postback.payload == 'MOVIES'
     postback.reply(Movie.recommend)
   end

@@ -67,11 +67,13 @@ Bot.on :message do |message|
       city_ids << 5 if city_ids == [4] # 桃園 中壢
       movie = client.movie
 
-      group_time_tables = TimeTable.joins(:theater)
-                                   .where(movie_id: movie.id, theaters: { city_id: city_ids })
-                                   .where(start_time: time_current..time_current.end_of_day)
-                                   .pluck_all(:'theaters.name', :theater_type, :start_time)
-                                   .group_by{ |time_table| time_table['name'] }
+      time_tables = TimeTable.joins(:theater)
+      time_tables = time_tables.where(theaters: { region: client.region }) if client.region
+
+      group_time_tables = time_tables.where(movie_id: movie.id, theaters: { city_id: city_ids })
+                                     .where(start_time: time_current..time_current.end_of_day)
+                                     .pluck_all(:'theaters.name', :theater_type, :start_time)
+                                     .group_by{ |time_table| time_table['name'] }
 
 
       time_tables = group_time_tables.map do |theater_name, time_tables|
@@ -83,6 +85,8 @@ Bot.on :message do |message|
                     end
 
       message.reply(text: time_current.date_weekday)
+      client.update(region: nil)
+
       if time_tables.blank?
         message.reply(text: "#{movie.name}, 沒有可觀看的時間!!!")
         message.reply(Movie.recommend)
@@ -94,12 +98,22 @@ Bot.on :message do |message|
       end
 
       message.reply(Movie.recommend)
+    elsif Theater.taipei_regions.include?(text)
+      client.update(region: text)
+      message.reply(client.movie.get_dates)
     else
       movie = Movie.where('name like ?', "%#{text}%").order(id: :desc).first
-      next message.reply(text: '查無此電影!!!') if !movie
+
+      if !movie
+        message.reply(text: '查無此電影!!!')
+        next message.reply(Movie.recommend)
+      end
+
       message.reply(attachment: movie.website('查看更多'))
       client.update(movie_id: movie.id)
-      message.reply(Movie.get_dates(movie.name))
+      next message.reply(Theater.question) if client.city_id == 1
+
+      message.reply(movie.get_dates)
     end
   rescue => e
     Rails.logger.error e.message
