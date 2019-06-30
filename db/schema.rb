@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190629101648) do
+ActiveRecord::Schema.define(version: 20190630122555) do
 
   create_table "active_admin_comments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
     t.string "namespace"
@@ -60,10 +60,13 @@ ActiveRecord::Schema.define(version: 20190629101648) do
   create_table "clients", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
     t.string "uid"
     t.integer "city_id"
+    t.string "region"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "movie_id"
+    t.integer "theater_id"
     t.index ["movie_id"], name: "index_clients_on_movie_id"
+    t.index ["theater_id"], name: "index_clients_on_theater_id"
   end
 
   create_table "movies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
@@ -77,6 +80,9 @@ ActiveRecord::Schema.define(version: 20190629101648) do
 
   create_table "theaters", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
     t.string "name"
+    t.string "region"
+    t.string "phone"
+    t.string "address"
     t.integer "city_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
