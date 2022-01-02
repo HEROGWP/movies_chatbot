@@ -1,3 +1,5 @@
+require 'open-uri' # warning: calling URI.open via Kernel#open is deprecated, call URI.open directly or use URI#open
+
 namespace :movie do
   task add_city_and_theater: :environment do
     print 'URL: '
@@ -5,7 +7,7 @@ namespace :movie do
     puts
     # url = "https://tw.movies.yahoo.com/movietime_result.html/id=#{id}"
 
-    doc = Nokogiri::HTML(open(url))
+    doc = Nokogiri::HTML(URI.open(url))
 
     doc.css('.area_timebox').each do |box|
       city_selector = box.css('.area_title')
@@ -17,8 +19,10 @@ namespace :movie do
     end
   end
 
+  # usage: rails movie:update_theater
+  # for create or update cities and theaters
   task update_theater: :environment do
-    doc = Nokogiri::HTML(open('https://movies.yahoo.com.tw/theater_list.html'))
+    doc = Nokogiri::HTML(URI.open('https://movies.yahoo.com.tw/theater_list.html'))
 
     doc.css('.theater_content').each do |box|
       city_selector = box.css('.theater_top')
@@ -39,8 +43,9 @@ namespace :movie do
     end
   end
 
+  # usage: rails movie:update_movies
   task update_movies: :environment do
-    doc = Nokogiri::HTML(open("https://tw.movies.yahoo.com/"))
+    doc = Nokogiri::HTML(URI.open("https://tw.movies.yahoo.com/"))
     options = doc.css('#sbox_mid > option')
     options.shift
 
@@ -80,7 +85,7 @@ namespace :movie do
         end
 
         info_url = "https://movies.yahoo.com.tw/movieinfo_main/#{yahoo_movie_id}"
-        doc = Nokogiri::HTML(open(info_url))
+        doc = Nokogiri::HTML(URI.open(info_url))
         picture_url = doc.css('.movie_intro_foto img').first.attributes['src'].value
         movie.update(times: data, url: info_url, picture_url: picture_url)
       end
