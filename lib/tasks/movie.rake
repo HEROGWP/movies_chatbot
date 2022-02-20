@@ -6,8 +6,7 @@ namespace :movie do
     url = STDIN.gets.chomp
     puts
     # url = "https://tw.movies.yahoo.com/movietime_result.html/id=#{id}"
-    # removed send when ruby upgrade to 2.7
-    doc = Nokogiri::HTML(URI.send(:open, url))
+    doc = Nokogiri::HTML(URI.open(url))
 
     doc.css('.area_timebox').each do |box|
       city_selector = box.css('.area_title')
@@ -22,8 +21,7 @@ namespace :movie do
   # usage: rails movie:update_theater
   # for create or update cities and theaters
   task update_theater: :environment do
-    # removed send when ruby upgrade to 2.7
-    doc = Nokogiri::HTML(URI.send(:open, 'https://movies.yahoo.com.tw/theater_list.html'))
+    doc = Nokogiri::HTML(URI.open('https://movies.yahoo.com.tw/theater_list.html'))
 
     doc.css('.theater_content').each do |box|
       city_selector = box.css('.theater_top')
@@ -46,8 +44,7 @@ namespace :movie do
 
   # usage: rails movie:update_movies
   task update_movies: :environment do
-    # removed send when ruby upgrade to 2.7
-    doc = Nokogiri::HTML(URI.send(:open, "https://tw.movies.yahoo.com/"))
+    doc = Nokogiri::HTML(URI.open("https://tw.movies.yahoo.com/"))
     options = doc.css('#sbox_mid > option')
     options.shift
 

@@ -7,8 +7,7 @@ class Movie < ApplicationRecord
   store :times
 
   def self.recommend
-    # removed send when ruby upgrade to 2.7
-    doc = Nokogiri::HTML(URI.send(:open,"https://tw.movies.yahoo.com/chart.html"))
+    doc = Nokogiri::HTML(URI.open("https://tw.movies.yahoo.com/chart.html"))
 
     number_one = doc.css('.rank_list_box dd h2').text
     movie_names = doc.css('.rank_txt').map(&:text).first(10)
@@ -17,16 +16,14 @@ class Movie < ApplicationRecord
   end
 
   def self.search(keyword, client)
-    # removed send when ruby upgrade to 2.7
-    doc = Nokogiri::HTML(URI.send(:open, URI.encode("https://tw.movies.yahoo.com/moviesearch_result.html?keyword=#{keyword[0..100]}&type=movie&page=1")))
+    doc = Nokogiri::HTML(URI.open(URI.encode("https://tw.movies.yahoo.com/moviesearch_result.html?keyword=#{keyword[0..100]}&type=movie&page=1")))
     m = doc.css('a').select{|m| m.text == '時刻表' }
     m = m.select{|m| m.attributes['href'] != nil }
     data = []
     if !m.first.nil?
       movie_name = doc.css('.release_movie_name').first.css('a').first.text
       url = m.first.attributes['href'].value
-      # removed send when ruby upgrade to 2.7
-      doc = Nokogiri::HTML(URI.send(:open, url))
+      doc = Nokogiri::HTML(URI.open(url))
 
       doc.css('.area_timebox').each do |box|
         city_selector = box.css('.area_title')
@@ -87,8 +84,7 @@ class Movie < ApplicationRecord
       end
 
       info_url = "https://movies.yahoo.com.tw/movieinfo_main/#{yahoo_movie_id}"
-      # removed send when ruby upgrade to 2.7
-      doc = Nokogiri::HTML(URI.send(:open, info_url))
+      doc = Nokogiri::HTML(URI.open(info_url))
       picture_url = doc.css('.movie_intro_foto img').first.attributes['src'].value
       movie.update(times: data, url: info_url, picture_url: picture_url)
     end
