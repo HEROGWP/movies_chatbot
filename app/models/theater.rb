@@ -10,9 +10,9 @@ class Theater < ApplicationRecord
         type: 'template',
         payload: {
           template_type: 'button',
-          text: '需要指定電影院查詢嗎？',
+          text: '需要指定行政區域查詢嗎？',
           buttons: [
-            { type: 'postback', title: '我想用電影院查', payload: 'ONE_THEATER' },
+            { type: 'postback', title: '我想用行政區域查詢', payload: 'ONE_THEATER' },
             { type: 'postback', title: '直接給我全部就好', payload: 'ALL_THEATER' }
           ]
         }
