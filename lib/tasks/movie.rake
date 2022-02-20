@@ -6,8 +6,8 @@ namespace :movie do
     url = STDIN.gets.chomp
     puts
     # url = "https://tw.movies.yahoo.com/movietime_result.html/id=#{id}"
-
-    doc = Nokogiri::HTML(URI.open(url))
+    # removed send when ruby upgrade to 2.7
+    doc = Nokogiri::HTML(URI.send(:open, url))
 
     doc.css('.area_timebox').each do |box|
       city_selector = box.css('.area_title')
@@ -22,7 +22,8 @@ namespace :movie do
   # usage: rails movie:update_theater
   # for create or update cities and theaters
   task update_theater: :environment do
-    doc = Nokogiri::HTML(URI.open('https://movies.yahoo.com.tw/theater_list.html'))
+    # removed send when ruby upgrade to 2.7
+    doc = Nokogiri::HTML(URI.send(:open, 'https://movies.yahoo.com.tw/theater_list.html'))
 
     doc.css('.theater_content').each do |box|
       city_selector = box.css('.theater_top')
@@ -45,51 +46,17 @@ namespace :movie do
 
   # usage: rails movie:update_movies
   task update_movies: :environment do
-    doc = Nokogiri::HTML(URI.open("https://tw.movies.yahoo.com/"))
+    # removed send when ruby upgrade to 2.7
+    doc = Nokogiri::HTML(URI.send(:open, "https://tw.movies.yahoo.com/"))
     options = doc.css('#sbox_mid > option')
     options.shift
 
+    id_name_mapping = {}
     options.each do |movie|
       yahoo_movie_id, movie_name = movie.values
       puts movie_name
-      (0..4).each do |day|
-        date = (Date.today + day.days).strftime("%Y-%m-%d")
-        url = "https://movies.yahoo.com.tw/ajax/pc/get_schedule_by_movie?movie_id=#{yahoo_movie_id}&date=#{date}&area_id="
-        response = HTTParty.get(url)
-        response_data = response.parsed_response
-        doc = Nokogiri::HTML(response_data['view'])
-        movie = Movie.find_or_create_by(name: movie_name)
-
-        data = {}
-        doc.css('.area_timebox').each do |box|
-          city_name = box.css('.area_title').text
-          puts city_name
-          city = City.find_or_create_by(name: city_name)
-
-          box.css('.area_time._c').map do |theater|
-            theater_name = theater.css('.adds').first.css('a').text
-            type = theater.css('.tapR').first.text
-            theater_record = city.theaters.find_or_create_by(name: theater_name)
-
-            theater.css('label.select').each do |time|
-              # TODO: 處理凌晨的問題
-              start_time = Time.parse("#{date} #{time.text}")
-              TimeTable.find_or_create_by(
-                theater_type: type,
-                theater_id: theater_record.id,
-                movie_id: movie.id,
-                start_time:  start_time
-              )
-            end
-          end
-        end
-
-        info_url = "https://movies.yahoo.com.tw/movieinfo_main/#{yahoo_movie_id}"
-        doc = Nokogiri::HTML(URI.open(info_url))
-        picture_url = doc.css('.movie_intro_foto img').first.attributes['src'].value
-        movie.update(times: data, url: info_url, picture_url: picture_url)
-      end
+      Movie.from_yahoo(yahoo_movie_id, movie_name) if !id_name_mapping[yahoo_movie_id]
+      id_name_mapping[yahoo_movie_id] = movie_name
     end
   end
-
 end

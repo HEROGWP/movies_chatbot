@@ -61,7 +61,8 @@ Bot.on :message do |message|
     elsif client.city.nil?
       message.reply(City.setting_message)
     elsif text.match(/\A(\d{4}-\d{2}-\d{2})\(.\)/i)
-      time_current = Time.parse($1)
+      parse_date_time = Time.parse($1).in_time_zone('Taipei')
+      time_current = (parse_date_time.to_date == Time.current.to_date) ? Time.current : parse_date_time
       city_ids = [client.city_id]
       city_ids << 22 if city_ids == [1] # 台北市 台北二輪
       city_ids << 5 if city_ids == [4] # 桃園 中壢
