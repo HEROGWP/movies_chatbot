@@ -34,6 +34,7 @@ gem 'jbuilder', '~> 2.5'
 gem 'capistrano-rails', group: :development
 gem 'capistrano-passenger', :group => :development
 gem 'capistrano-bundler', '~> 1.2', :group => :development
+gem 'capistrano-rvm'
 
 gem 'mysql2'
 gem 'whenever', :require => false
