@@ -1,5 +1,4 @@
 class PrivacyPolicyController < ApplicationController
-  def index
-
-  end
+  layout 'privacy_policy'
+  def index; end
 end

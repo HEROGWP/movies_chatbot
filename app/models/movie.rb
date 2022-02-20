@@ -1,3 +1,5 @@
+require 'open-uri' # warning: calling URI.open via Kernel#open is deprecated, call URI.open directly or use URI#open
+
 class Movie < ApplicationRecord
   has_many :time_tables
   has_many :clients
@@ -5,21 +7,21 @@ class Movie < ApplicationRecord
   store :times
 
   def self.recommend
-    doc = Nokogiri::HTML(open("https://tw.movies.yahoo.com/chart.html"))
+    doc = Nokogiri::HTML(URI.open("https://tw.movies.yahoo.com/chart.html"))
     movie_names = doc.css('.rank_txt').map(&:text).sample(11)
 
     { text: '為您推薦以下電影(如果選項沒有可以直接輸入)', quick_replies: QuickReply.new(movie_names) }
   end
 
   def self.search(keyword, client)
-    doc = Nokogiri::HTML(open(URI.encode("https://tw.movies.yahoo.com/moviesearch_result.html?keyword=#{keyword[0..100]}&type=movie&page=1")))
+    doc = Nokogiri::HTML(URI.open(URI.encode("https://tw.movies.yahoo.com/moviesearch_result.html?keyword=#{keyword[0..100]}&type=movie&page=1")))
     m = doc.css('a').select{|m| m.text == '時刻表' }
     m = m.select{|m| m.attributes['href'] != nil }
     data = []
     if !m.first.nil?
       movie_name = doc.css('.release_movie_name').first.css('a').first.text
       url = m.first.attributes['href'].value
-      doc = Nokogiri::HTML(open(url))
+      doc = Nokogiri::HTML(URI.open(url))
 
       doc.css('.area_timebox').each do |box|
         city_selector = box.css('.area_title')
