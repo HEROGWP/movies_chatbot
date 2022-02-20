@@ -1,6 +1,6 @@
 `ssh-add` # 注意這是鍵盤左上角的「 `」不是單引號「 '」
 # config valid only for current version of Capistrano
-lock "3.7.2"
+lock "3.16.0"
 
 set :application, 'movies_bot'
 
